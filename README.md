@@ -155,8 +155,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - FastAPI for the backend framework
 - React and Tailwind CSS for the frontend
 
-## Contact
-
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - email@example.com
-
-Project Link: [https://github.com/yourusername/skin-disease-detection](https://github.com/yourusername/skin-disease-detection) 
