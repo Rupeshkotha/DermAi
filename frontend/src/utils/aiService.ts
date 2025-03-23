@@ -1,7 +1,7 @@
 import { DiseaseResponse } from '../types';
 
 interface ProgressAnalysis {
-  improvement: 'improved' | 'worsened' | 'unchanged';
+  improvement: 'better' | 'same' | 'worse';
   confidenceChange: number;
   analysis: string;
 }
@@ -15,12 +15,12 @@ interface TreatmentSuggestion {
 
 export const analyzeProgress = (currentScan: DiseaseResponse, previousScan: DiseaseResponse): ProgressAnalysis => {
   const confidenceChange = currentScan.confidence - previousScan.confidence;
-  let improvement: 'improved' | 'worsened' | 'unchanged' = 'unchanged';
+  let improvement: 'better' | 'same' | 'worse' = 'same';
   
   if (Math.abs(confidenceChange) < 0.05) {
-    improvement = 'unchanged';
+    improvement = 'same';
   } else {
-    improvement = confidenceChange < 0 ? 'improved' : 'worsened';
+    improvement = confidenceChange < 0 ? 'better' : 'worse';
   }
 
   return {
@@ -87,7 +87,7 @@ export const getSeverityLevel = (confidence: number): {
 
 // Helper functions
 const generateProgressAnalysis = (
-  improvement: 'improved' | 'worsened' | 'unchanged',
+  improvement: 'better' | 'same' | 'worse',
   change: number,
   current: DiseaseResponse,
   previous: DiseaseResponse
@@ -95,9 +95,9 @@ const generateProgressAnalysis = (
   const changePercent = Math.abs(change * 100).toFixed(1);
   
   switch (improvement) {
-    case 'improved':
+    case 'better':
       return `The condition has shown improvement with a ${changePercent}% decrease in detection confidence. Continue with the current treatment plan.`;
-    case 'worsened':
+    case 'worse':
       return `The condition has shown some deterioration with a ${changePercent}% increase in detection confidence. Consider consulting your healthcare provider for treatment adjustment.`;
     default:
       return 'The condition appears stable with no significant changes. Continue monitoring and following the prescribed treatment plan.';

@@ -11,129 +11,164 @@ A modern web application that uses AI to detect and analyze various skin conditi
 - 🔐 Google Authentication
 - 💡 Detailed disease information and treatment recommendations
 
-## Tech Stack
+## Tech Stack & External Dependencies
 
 ### Frontend
-- React with TypeScript
-- Tailwind CSS for styling
-- Firebase Authentication
-- React Dropzone for image uploads
-- Context API for state management
+1. **Core Framework**
+   - React 18.x
+   - TypeScript 5.x
+   - Vite/React Scripts for build tooling
+
+2. **UI & Styling**
+   - Tailwind CSS for utility-first styling
+   - Heroicons for UI icons
+   - React Dropzone for file uploads
+   - Headless UI for accessible components
+
+3. **State Management & Routing**
+   - React Context API for global state
+   - React Router for navigation
+
+4. **Authentication & Backend Integration**
+   - Firebase Authentication
+   - Firebase Firestore for database
+   - Firebase Storage for image storage
+
+5. **Development Tools**
+   - ESLint for code linting
+   - Prettier for code formatting
+   - TypeScript for type safety
 
 ### Backend
-- FastAPI
-- PyTorch with DinoV2 model
-- OpenRouter/GPT for AI insights
-- CORS support
-- Environment variable management
+1. **Core Framework**
+   - FastAPI for REST API
+   - Python 3.8+
+   - Uvicorn ASGI server
 
-## Prerequisites
+2. **Machine Learning**
+   - PyTorch for deep learning
+   - DinoV2 model for image classification
+   - Custom dermatology model weights
 
-- Python 3.8+
-- Node.js 14+
-- npm or yarn
-- Firebase account
-- OpenRouter API key
+3. **AI & Natural Language Processing**
+   - OpenRouter API for GPT integration
+   - Custom prompt engineering for medical insights
 
-## Installation
+4. **Image Processing**
+   - Pillow (PIL) for image manipulation
+   - OpenCV for image preprocessing
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/skin-disease-detection.git
-cd skin-disease-detection
-```
+5. **Database & Storage**
+   - Firebase Firestore
+   - Firebase Storage
 
-2. Set up the backend:
-```bash
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+## External APIs
 
-# Install dependencies
-cd backend
-pip install -r requirements.txt
+1. **Firebase Services**
+   - Authentication API
+   - Firestore Database API
+   - Storage API
+   - Configuration: Environment variables for Firebase setup
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
-```
+2. **OpenRouter API**
+   - GPT model access
+   - Medical information generation
+   - Treatment recommendations
 
-3. Set up the frontend:
-```bash
-cd frontend
-npm install
+3. **Custom ML Model API**
+   - DinoV2-based skin disease classification
+   - Confidence scoring
+   - Disease detection endpoints
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
-```
+## Development Tools & Environment
 
-## Configuration
+1. **Version Control**
+   - Git for source control
+   - GitHub for repository hosting
 
-### Backend (.env)
-```
-OPENROUTER_API_KEY=your_api_key
-MODEL_PATH=path_to_model
-```
+2. **Development Environment**
+   - Node.js 14+ for frontend
+   - Python 3.8+ for backend
+   - Virtual environment (venv) for Python dependencies
 
-### Frontend (.env)
-```
-REACT_APP_API_URL=http://localhost:5000
-REACT_APP_FIREBASE_CONFIG=your_firebase_config
-```
+3. **Package Management**
+   - npm/yarn for frontend
+   - pip for Python packages
 
-## Running the Application
-
-1. Start the backend server:
-```bash
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 5000
-```
-
-2. Start the frontend development server:
-```bash
-cd frontend
-npm start
-```
-
-The application will be available at `http://localhost:3000`
+4. **Environment Variables**
+   - `.env` files for configuration
+   - Environment-specific settings
 
 ## Project Structure
 
 ```
 skin-disease-detection/
-├── backend/
-│   ├── app/
-│   │   ├── model/
-│   │   │   ├── model_handler.py
-│   │   │   └── dinov2_dermnet_model.pth
-│   │   └── utils/
-│   │       └── gpt_handler.py
-│   ├── main.py
-│   └── requirements.txt
-├── frontend/
+├── frontend/                 # React frontend
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── ImageUpload.tsx
-│   │   │   ├── Results.tsx
-│   │   │   └── Login.tsx
-│   │   ├── context/
-│   │   │   ├── AuthContext.tsx
-│   │   │   └── ThemeContext.tsx
-│   │   ├── config/
-│   │   │   └── firebase.ts
-│   │   ├── types/
-│   │   │   └── index.ts
-│   │   └── App.tsx
-│   └── package.json
-└── README.md
+│   │   ├── components/      # UI components
+│   │   ├── context/         # React context providers
+│   │   ├── config/          # Configuration files
+│   │   ├── utils/           # Utility functions
+│   │   └── types/           # TypeScript type definitions
+│   └── public/              # Static assets
+├── app/                     # Backend application
+│   ├── model/              # ML model handling
+│   └── utils/              # Utility functions
+├── main.py                 # FastAPI application entry
+└── requirements.txt        # Python dependencies
 ```
 
 ## API Endpoints
 
-- `POST /detect`: Upload and analyze a skin image
-  - Request: Form data with image file
-  - Response: Disease detection results with AI insights
+1. **Authentication**
+   - `POST /auth/login`: User login
+   - `POST /auth/register`: User registration
+   - `POST /auth/logout`: User logout
+
+2. **Disease Detection**
+   - `POST /detect`: Upload and analyze skin image
+   - `GET /diseases`: List supported diseases
+   - `GET /diseases/{id}`: Get disease details
+
+3. **Monitoring**
+   - `POST /monitoring/start`: Start condition monitoring
+   - `POST /monitoring/check-in`: Add progress check-in
+   - `GET /monitoring/conditions`: Get user's monitored conditions
+   - `GET /monitoring/progress/{id}`: Get condition progress
+
+## Security Considerations
+
+1. **Authentication**
+   - Firebase Authentication
+   - JWT token management
+   - Secure session handling
+
+2. **Data Protection**
+   - Environment variable management
+   - API key security
+   - Data encryption
+
+3. **Access Control**
+   - Role-based access control
+   - User data isolation
+   - API rate limiting
+
+## Deployment Requirements
+
+1. **Frontend**
+   - Node.js environment
+   - Build optimization
+   - Environment configuration
+
+2. **Backend**
+   - Python environment
+   - ML model deployment
+   - API server configuration
+
+3. **Infrastructure**
+   - Firebase project setup
+   - API key management
+   - Environment variables
 
 ## Contributing
 

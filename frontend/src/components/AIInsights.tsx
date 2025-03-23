@@ -68,8 +68,8 @@ const AIInsights: React.FC<AIInsightsProps> = ({ currentScan, previousScan }) =>
             </h3>
             <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
               <div className={`flex items-center space-x-2 ${
-                progress.improvement === 'improved' ? 'text-green-600 dark:text-green-400' :
-                progress.improvement === 'worsened' ? 'text-red-600 dark:text-red-400' :
+                progress.improvement === 'better' ? 'text-green-600 dark:text-green-400' :
+                progress.improvement === 'worse' ? 'text-red-600 dark:text-red-400' :
                 'text-yellow-600 dark:text-yellow-400'
               }`}>
                 <ClockIcon className="w-5 h-5" />

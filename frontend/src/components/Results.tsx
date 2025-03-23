@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { ResultsProps } from '../types';
+import { useAuth } from '../context/AuthContext';
+import MonitoringService from '../utils/monitoringService';
+import ConditionMonitoring from './ConditionMonitoring';
+import { isFirestoreReady } from '../config/firebase';
+
+// Create a singleton instance of MonitoringService
+const monitoringService = MonitoringService.getInstance();
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -67,14 +74,61 @@ const LoadingSkeleton = () => (
 );
 
 const Results: React.FC<ResultsProps> = ({ results }) => {
-  if (!results) return null;
+  const { user } = useAuth();
+  const [isStartingMonitoring, setIsStartingMonitoring] = useState(false);
+  const [monitoringStarted, setMonitoringStarted] = useState(false);
+  const [isFirestoreReady, setIsFirestoreReady] = useState(true);
 
   // Check if confidence is low or if the disease name suggests normal skin
-  const isLowConfidence = results.confidence < 0.35; // Increased threshold to 40%
+  const isLowConfidence = results.confidence < 0.4;
   const isNormalSkin = results.disease_name.toLowerCase().includes('normal') || 
                       results.disease_name.toLowerCase().includes('healthy') ||
                       results.disease_name.toLowerCase().includes('clear') ||
                       results.disease_name.toLowerCase().includes('unaffected');
+
+  // Determine if the condition is severe (you can customize this logic)
+  const isSevereCondition = (diseaseName: string): boolean => {
+    const severeConditions = [
+      'melanoma',
+      'squamous cell carcinoma',
+      'basal cell carcinoma',
+      'skin cancer',
+      'necrotizing fasciitis',
+      'severe infection'
+    ];
+    return severeConditions.some(condition => 
+      diseaseName.toLowerCase().includes(condition.toLowerCase())
+    );
+  };
+
+  const handleStartMonitoring = async () => {
+    if (!user || !results) return;
+
+    try {
+      setIsStartingMonitoring(true);
+      
+      // Wait for Firestore to be ready
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Give Firestore time to initialize
+      
+      if (!isFirestoreReady) {
+        throw new Error('Firestore is not ready yet. Please try again in a moment.');
+      }
+
+      await monitoringService.startMonitoring(
+        user.uid,
+        results.disease_name,
+        'image_url', // TODO: Add actual image URL
+        results.confidence
+      );
+      setMonitoringStarted(true);
+    } catch (error) {
+      console.error('Error starting monitoring:', error);
+      // Show error to user
+      alert(error instanceof Error ? error.message : 'Failed to start monitoring. Please try again.');
+    } finally {
+      setIsStartingMonitoring(false);
+    }
+  };
 
   if (isLowConfidence || isNormalSkin) {
     return (
@@ -143,7 +197,6 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
     );
   }
 
-  // Original results display for detected conditions
   return (
     <div className="space-y-6">
       {/* Detection Results Card */}
@@ -163,6 +216,56 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
             </p>
           </div>
         </div>
+
+        {/* Severity and Monitoring Section */}
+        {!isNormalSkin && (
+          <div className={`mt-6 p-4 rounded-lg ${
+            isSevereCondition(results.disease_name)
+              ? 'bg-red-50 dark:bg-red-900/20'
+              : 'bg-yellow-50 dark:bg-yellow-900/20'
+          }`}>
+            <div className="flex items-start">
+              <div className="flex-grow">
+                <h3 className={`text-lg font-semibold ${
+                  isSevereCondition(results.disease_name)
+                    ? 'text-red-800 dark:text-red-200'
+                    : 'text-yellow-800 dark:text-yellow-200'
+                }`}>
+                  {isSevereCondition(results.disease_name)
+                    ? 'Medical Attention Recommended'
+                    : 'Monitor Your Condition'}
+                </h3>
+                <p className={`mt-1 ${
+                  isSevereCondition(results.disease_name)
+                    ? 'text-red-700 dark:text-red-300'
+                    : 'text-yellow-700 dark:text-yellow-300'
+                }`}>
+                  {isSevereCondition(results.disease_name)
+                    ? 'This condition requires professional medical evaluation. Please consult a healthcare provider.'
+                    : 'This condition can be monitored at home, but consult a doctor if it worsens.'}
+                </p>
+              </div>
+              {!isSevereCondition(results.disease_name) && !monitoringStarted && (
+                <button
+                  onClick={handleStartMonitoring}
+                  disabled={isStartingMonitoring}
+                  className={`px-4 py-2 rounded-lg ${
+                    isStartingMonitoring
+                      ? 'bg-gray-300 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  } text-white transition-colors`}
+                >
+                  {isStartingMonitoring ? 'Starting...' : 'Start Monitoring'}
+                </button>
+              )}
+              {monitoringStarted && (
+                <span className="text-green-600 dark:text-green-400 font-medium">
+                  Monitoring Active ✓
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* AI Analysis Card */}
@@ -216,6 +319,27 @@ const Results: React.FC<ResultsProps> = ({ results }) => {
           Always consult with a qualified healthcare professional for proper diagnosis and treatment.
         </p>
       </div>
+
+      {/* Condition Monitoring Section */}
+      {monitoringStarted && (
+        <div className="mt-8">
+          <ConditionMonitoring 
+            condition={{
+              id: results.disease_name,
+              userId: user?.uid || '',
+              diseaseName: results.disease_name,
+              startDate: new Date(),
+              status: 'active',
+              initialImage: 'image_url', // TODO: Add actual image URL
+              initialConfidence: results.confidence,
+              checkInFrequency: 'daily',
+              nextCheckInDue: new Date(),
+              notes: ''
+            }}
+            onStartMonitoring={handleStartMonitoring}
+          />
+        </div>
+      )}
     </div>
   );
 };
