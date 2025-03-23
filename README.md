@@ -9,7 +9,6 @@ A modern web application that uses AI to detect and analyze various skin conditi
 - 📱 Responsive design for all devices
 - 🌓 Dark/Light mode support
 - 🔐 Google Authentication
-- 📊 Scan history tracking
 - 💡 Detailed disease information and treatment recommendations
 
 ## Tech Stack
